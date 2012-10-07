@@ -1,0 +1,46 @@
+#!/usr/bin/env python
+
+import os
+import sys
+import logging
+import argparse
+from ConfigParser import ConfigParser
+from evecal import EVECal
+
+def main():
+
+    parser = argparse.ArgumentParser(description='Convert EVE API Calendar to iCal format')
+    parser.add_argument('-k', '--keyid', help='EVE API Key ID')
+    parser.add_argument('-v', '--vcode', help='EVE API Verification Code')
+    parser.add_argument('-c', '--character', help='Character ID of the calander you wish to export')
+    parser.add_argument('--config', help='Configuration file', default='~/.evetoics.conf')
+    args = parser.parse_args()
+
+    if not args.config and (not args.keyid or not args.vcode or not args.character):
+        print >> sys.stderr, 'You did not provide either a Key, vCode, or character ID'
+        return -1
+    elif args.config:
+        file = os.path.abspath(os.path.expanduser(args.config))
+        if os.path.exists(file):
+            config = ConfigParser()
+            config.read(file)
+            keyid = config.get('evetoics', 'keyid')
+            vcode = config.get('evetoics', 'vcode')
+            character = config.get('evetoics', 'character')
+        else:
+            print >> sys.stderr, 'Invalid configuration file provided: %s' % args.config
+            return -1
+    else:
+        keyid = args.keyid
+        vcode = args.vcode
+        character = args.character
+
+    logging.basicConfig(level=logging.INFO)
+    print keyid, vcode, character
+    c = EVECal(keyID=keyid, vCode=vcode, characterID=character)
+    print c.as_string()
+    return 0
+
+
+if __name__ == '__main__':
+    sys.exit(main())

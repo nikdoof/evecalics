@@ -1,0 +1,3 @@
+argparse
+icalendar
+-e git+git://github.com/ntt/eveapi.git#egg=eveapi
